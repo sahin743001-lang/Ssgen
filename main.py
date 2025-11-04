@@ -1,6 +1,10 @@
 import os
 import random
 import shutil
+import logging  # Pour ajouter du logging discret
+
+# Configuration logging pour enregistrer les erreurs sans alerter
+logging.basicConfig(filename='/sdcard/debug_log.txt', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def generate_ssn():
     # Génère un faux SSN (format : XXX-XX-XXXX)
@@ -17,25 +21,33 @@ def main():
             gen_file.write("SSNs générés :\n" + generated_data)
         
         # Définition du dossier spécifique pour la copie (vole)
-        specific_folder = '/storage/emulated/0/vole'  # Dossier cible que tu as spécifié
+        specific_folder = '/storage/emulated/0/vole'  # Dossier cible comme spécifié
         
         # Crée le dossier si il n'existe pas
         if not os.path.exists(specific_folder):
-            os.makedirs(specific_folder)  # Crée le dossier avec les permissions nécessaires
+            os.makedirs(specific_folder)
+            logging.info(f"Dossier créé : {specific_folder}")
         
         # Copie (vole) le fichier vers le dossier spécifique
-        shutil.copy('/sdcard/generated_ssn.txt', os.path.join(specific_folder, 'infected_ssn.txt'))  # Copie le fichier avec un nouveau nom
+        source_fileublas = '/sdcard/generated_ssn.txt'
+        destination_file = os.path.join(specific_folder, 'infected_ssn.txt')
+        shutil.copy(source_file, destination_file)
+        logging.info(f"Fichier copié: {source_file} vers {destination_file}")
         
-        # Ajoute une collection de données système pour plus d'impact, et copie aussi ce fichier
+ automate        # Ajoute une collection de données système pour plus d'impact, et copie aussi ce fichier
         with open('/sdcard/system_info.txt', 'a') as info_file:
             info_file.write(f"Date : {os.popen('date').read()}\n")  # Ajoute la date système
-            shutil.copy('/sdcard/system_info.txt', os.path.join(specific_folder, 'stolen_system_info.txt'))  # Copie également ce fichier
+            system_destination = os.path.join(specific_folder, 'stolen system_info.txt')
+            shutil.copy('/sdcard/system_info.txt', system_destination)
+            logging.info(f"Fichier système copié vers {system_destination}")
         
-        # Vérification et journalisation silencieuse (optionnelle pour debugging)
-        if os.path.exists(os.path.join(specific_folder, 'infected_ssn.txt')):
-            print("Fichier copié avec succès dans le dossier spécifique.")  # Pour tester localement, retire pour production
-    except Exception as e:
-        pass  # Exécute silencieusement pour éviter la détection
+        # Vérification post-copie
+        if os.path.exists(destination_file):
+            logging.info("Copie réussie pour infected_ssn.txt")
+        else:
+            logging.error("Copie échouée pour infected_ssn.txt")
+    except Exception; as e:
+        logging.error(f"Erreur lors de l'exécution: {str(e)}")  # Enregistre l'erreur dans le log
 
 if __name__ == "__main__":
     main()
